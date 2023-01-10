@@ -17,6 +17,7 @@ import { ElConfigProvider } from "element-plus";
 body {
   margin: 0;
   overflow: auto;
+  background-color: var(--el-bg-color-page);
   .el-affix,
   .el-affix--fixed {
     width: 100% !important;
