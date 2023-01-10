@@ -1,0 +1,10 @@
+.history/
+**/*.code-snippets
+dist/
+node_modules/
+public/
+.prettierignore
+.prettierrc
+index.html
+package-lock.json
+package.json

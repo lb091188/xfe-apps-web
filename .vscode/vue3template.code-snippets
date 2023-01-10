@@ -1,0 +1,33 @@
+{
+  "Vue Script setup": {
+    "scope": "javascript,typescript,vue",
+    "prefix": "vuescriptsetup",
+    "body": [
+      "<template>",
+      "  <view>",
+      "",
+      "  </view>",
+      "</template>",
+      "<script setup lang=\"ts\">",
+      "  ",
+      "</script>",
+      "<style lang=\"scss\">",
+      "  ",
+      "</style>"],
+    "description": "create Vue Script setup page"
+  },
+  "xfe ajax ts": {
+    "scope": "javascript,typescript,vue",
+    "prefix": "xfeajax",
+    "body": [
+      "let { promise, ajax } = await createAjax<$0>({",
+      "  url: \"$1\",",
+      "  method: \"${2|GET,POST,DELETE,PUT|}\",",
+      "  ${3|params,data|}:{",
+      "  }",
+      "})",
+      "let res = await promise;",
+      "let {} = res;",
+    ]
+  }
+}
