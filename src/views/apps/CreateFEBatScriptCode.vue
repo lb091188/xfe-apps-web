@@ -152,10 +152,11 @@ function createBatCode(pjList) {
       project.command.forEach((cmd, j) => {
         batSetp += `echo ${j + 1}、${cmd}\n`;
       });
-      batSetp += `set /p num=请选择：\n`;
+      batSetp += `set /p num=请选择：\ncls`;
       project.command.forEach((cmd, k) => {
         batSetp += `if %num% == ${k + 1} (call ${cmd})\n`;
       });
+      batSetp += `if %num% == ${project.command.length} (goto choose)\n`;
     });
     return `${batChoose}${batRun}\n${batSetp}`;
   } else {
