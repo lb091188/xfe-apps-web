@@ -1,4 +1,5 @@
 import { createRouter, createWebHashHistory } from "vue-router";
+import AppsChildrenViews from "@/layout/AppsChildrenViews.vue";
 
 const router = createRouter({
   history: createWebHashHistory(import.meta.env.BASE_URL),
@@ -13,9 +14,21 @@ const router = createRouter({
       component: () => import("@/views/AppList.vue"),
     },
     {
-      path: "/app/create-fe-bat-code",
+      path: "/app",
       name: "CreateFEBatScriptCode",
-      component: () => import("@/views/apps/CreateFEBatScriptCode.vue"),
+      component: AppsChildrenViews,
+      children: [
+        {
+          path: "create-fe-bat-code",
+          name: "CreateFEBatScriptCode",
+          component: () => import("@/views/apps/CreateFEBatScriptCode.vue"),
+        },
+        {
+          path: "time-calculation",
+          name: "TimeCalculation",
+          component: () => import("@/views/apps/TimeCalculation.vue"),
+        },
+      ],
     },
   ],
 });

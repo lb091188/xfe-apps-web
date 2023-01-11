@@ -4,9 +4,9 @@
     "prefix": "vuescriptsetup",
     "body": [
       "<template>",
-      "  <view>",
+      "  <section>",
       "",
-      "  </view>",
+      "  </section>",
       "</template>",
       "<script setup lang=\"ts\">",
       "  ",

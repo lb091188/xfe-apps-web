@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { RouterView } from "vue-router";
 import { ElConfigProvider } from "element-plus";
+import zhCn from "element-plus/dist/locale/zh-cn.mjs";
 </script>
 
 <template>
-  <el-config-provider size="small">
+  <el-config-provider
+    size="small"
+    :locale="zhCn">
     <router-view v-slot="{ Component }">
       <keep-alive>
         <component :is="Component" />
