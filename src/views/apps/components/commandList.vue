@@ -11,7 +11,7 @@
   </el-tag>
   <el-select
     class="command-tag"
-    placeholder="选择或者输入新的指令"
+    placeholder="输入新的指令或者选择"
     filterable
     allow-create
     v-model="newVal">
@@ -57,6 +57,7 @@ const props = defineProps<{
 
 const emits = defineEmits<{
   (e: "update:modelValue", value: string[]);
+  (e: "input", value: string[]);
 }>();
 
 const newVal = ref("");
@@ -69,9 +70,14 @@ function delTag(index) {
 function addValue() {
   let val = props.modelValue;
   if (!val.includes(newVal.value)) {
-    val.push(newVal.value);
-    emits("update:modelValue", val);
-    newVal.value = "";
+    if (newVal.value) {
+      val.push(newVal.value);
+      emits("update:modelValue", val);
+      emits("input", val);
+      newVal.value = "";
+    } else {
+      ElMessage.error("请输入或者选择命令");
+    }
   } else {
     ElMessage.error("不能重复添加同一个命令！");
   }

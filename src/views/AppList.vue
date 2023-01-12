@@ -16,7 +16,7 @@ import { onMounted, ref } from "vue";
 const router = useRouter();
 const apps = ref([
   {
-    name: "前端开发脚本构建工具",
+    name: "bat脚本构建工具",
     description: "通过GUI工具，通过设置项目的名字、本机磁盘位置、路径、勾选要运行的任务，设置好数据后来构建能运行于Windows的脚本",
     path: "/app/create-fe-bat-code",
   },
