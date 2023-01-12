@@ -163,13 +163,13 @@ function saveCode() {
 
 function createBatCode(pjList) {
   if (pjList && pjList.length) {
-    let batChoose = `@echo off\n:choose\ncls\necho =========================\necho     输入如下对应序号进行选择\necho =========================\n`;
+    let batChoose = `@echo off\n:choose\ncls\necho ====================\necho   输入对应序号选择项目\necho ====================\n`;
     let batRun = `set /p num=请选择：\n`;
     let batSetp = "";
     pjList.forEach((project, index) => {
       batChoose += `echo ${index + 1}、${project.name}\n`;
       batRun += `if %num% == ${index + 1} (goto step${index})\n`;
-      batSetp += `\n:step${index}\ncls\n${project.drive}\ncd ${project.path}\necho 输入对应数字选择要运行的命令：\n`;
+      batSetp += `\n:step${index}\ncls\n${project.drive}\ncd ${project.path}\necho ========================\necho    输入对应序号选择要命令\necho ========================\n`;
       project.command.forEach((cmd, j) => {
         batSetp += `echo ${j + 1}、${cmd}\n`;
       });
