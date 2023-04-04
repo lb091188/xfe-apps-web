@@ -25,6 +25,11 @@ const apps = ref([
     description: "计算时间日期之间的间隔，可以计算两个时间指定单位的间隔，例如两个时间相差多少天，指定时间加减指定单位的间隔得到的时间",
     path: "/app/time-calculation",
   },
+  {
+    name: "幼小衔接-数与量",
+    description: "用数字和点展示数与量",
+    path: "/app/num-pad",
+  },
 ]);
 function goto(app) {
   router.push(app.path);

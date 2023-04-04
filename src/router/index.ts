@@ -28,6 +28,11 @@ const router = createRouter({
           name: "TimeCalculation",
           component: () => import("@/views/apps/TimeCalculation.vue"),
         },
+        {
+          path: "num-pad",
+          name: "NumberPad",
+          component: () => import("@/views/apps/NumberPad.vue"),
+        },
       ],
     },
   ],
