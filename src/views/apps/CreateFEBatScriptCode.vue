@@ -2,7 +2,34 @@
   <section class="apps-container">
     <el-page-header @back="onBack">
       <template #content>
-        <h3 class="header-title">前端开发脚本构建工具</h3>
+        <h3 class="header-title">bat脚本构建工具</h3>
+        <div class="header-alerts">
+          <el-carousel
+            height="30px"
+            direction="vertical"
+            :autoplay="true">
+            <el-carousel-item>
+              <el-alert
+                title="编辑项目列表，构建能够运行在Windows的bat脚本文件。"
+                type="info" />
+            </el-carousel-item>
+            <el-carousel-item>
+              <el-alert
+                title="理论上所有cmd支持的脚本都能够通过这个命令构建，遇到问题及时反馈"
+                type="warning" />
+            </el-carousel-item>
+            <el-carousel-item>
+              <el-alert
+                title="你可以将bat脚本放置在指定目录中，并将指定目录添加到环境变量中"
+                type="warning" />
+            </el-carousel-item>
+            <el-carousel-item>
+              <el-alert
+                title="项目地址是文件管理器中复制的包含盘符的绝对地址，会自动处理将盘符与绝对地址拆开"
+                type="error" />
+            </el-carousel-item>
+          </el-carousel>
+        </div>
       </template>
       <template #extra>
         <el-button
@@ -20,16 +47,8 @@
           @click="codeCopy">
           复制代码
         </el-button>
-        <el-button
-          type="success"
-          size="default"
-          :icon="DocumentCopy"
-          @click="saveCode">
-          保存列表
-        </el-button>
       </template>
       <div class="bat-script-code-container">
-        <p class="bat-script-code-tips">编辑项目列表，构建能够运行在Windows的bat脚本文件。项目列表编辑完成之后，打开记事本 =》 复制代码 =》 在记事本粘贴 =》保存。保存的时候文件后缀名改成 .bat 编码 UTF-8 改成 ASNI</p>
         <el-table
           :data="projectList"
           :height="height"
@@ -46,45 +65,40 @@
             <template #default="{ row }">
               <el-input
                 size="default"
-                placeholder="请输入项目名称（例如，Element Plus)"
+                placeholder="请输入项目名称"
+                @input="saveCode"
                 v-model="row.name"></el-input>
             </template>
           </el-table-column>
           <el-table-column
             label="所在盘符"
-            width="120">
+            width="80">
             <template #default="{ row }">
-              <el-select
+              <el-input
                 size="default"
-                style="width: 100%"
-                v-model="row.drive"
-                placeholder="请选择项目所在盘符"
-                filterable>
-                <el-option
-                  v-for="d in drives"
-                  :key="d"
-                  :label="d"
-                  :value="d">
-                  {{ d }}
-                </el-option>
-              </el-select>
+                readonly
+                :model-value="row.drive"
+                placeholder="自动获取"></el-input>
             </template>
           </el-table-column>
           <el-table-column
-            label="相对地址"
+            label="项目地址"
             min-width="200">
             <template #default="{ row }">
               <el-input
                 size="default"
-                placeholder="项目所在目录（例如，\aDir\bProject）"
-                v-model="row.path"></el-input>
+                placeholder="项目绝对路径（例：D:\a\b)"
+                v-model="row.path"
+                @input="pathChange($event, row)"></el-input>
             </template>
           </el-table-column>
           <el-table-column
             label="命令"
             min-width="600">
             <template #default="{ row }">
-              <commandList v-model="row.command"></commandList>
+              <commandList
+                v-model="row.command"
+                @input="saveCode"></commandList>
             </template>
           </el-table-column>
           <el-table-column
@@ -97,7 +111,7 @@
                 plain
                 :icon="DocumentCopy"
                 @click="copyCurrent(row, $index)">
-                复制
+                复制行
               </el-button>
               <el-button
                 type="danger"
@@ -121,7 +135,7 @@ import commandList from "./components/commandList.vue";
 import hljs from "highlight.js/lib/core";
 import bash from "highlight.js/lib/languages/bash";
 import "highlight.js/styles/github-dark.css";
-import { ElMessage } from "element-plus";
+import { ElMessage, ElNotification } from "element-plus";
 hljs.registerLanguage("bash", bash);
 
 const router = useRouter();
@@ -134,34 +148,54 @@ const height = ref(0);
 
 const projectList = ref([] as any[]);
 
+let timer: number | null = null;
 function saveCode() {
-  if (projectList.value && projectList.value.length) {
-    localStorage.projectList = JSON.stringify(projectList.value);
+  if (timer !== null) {
+    clearTimeout(timer);
   }
+  timer = setTimeout(() => {
+    console.log("save code now !");
+    if (projectList.value && projectList.value.length) {
+      localStorage.projectList = JSON.stringify(projectList.value);
+    }
+  }, 3000);
 }
 
 function createBatCode(pjList) {
   if (pjList && pjList.length) {
-    let batChoose = `@echo off\n:choose\ncls\necho =========================\necho     输入如下对应序号进行选择\necho =========================\n`;
+    let batChoose = `@echo off\n:choose\ncls\necho ====================\necho   输入对应序号选择项目\necho ====================\n`;
     let batRun = `set /p num=请选择：\n`;
     let batSetp = "";
     pjList.forEach((project, index) => {
       batChoose += `echo ${index + 1}、${project.name}\n`;
       batRun += `if %num% == ${index + 1} (goto step${index})\n`;
-      batSetp += `\n:step${index}\ncls\n${project.drive}\ncd ${project.path}\necho 输入对应数字选择要运行的命令：\n`;
+      batSetp += `\n:step${index}\ncls\n${project.drive}\ncd ${project.path}\necho ========================\necho    输入对应序号选择要命令\necho ========================\n`;
       project.command.forEach((cmd, j) => {
         batSetp += `echo ${j + 1}、${cmd}\n`;
       });
-      batSetp += `set /p num=请选择：\ncls`;
+      batSetp += `echo ${project.command.length + 1}、返回项目列表\necho ${project.command.length + 2}、退出\n`;
+      batSetp += `set /p num=请选择：\ncls\n`;
       project.command.forEach((cmd, k) => {
         batSetp += `if %num% == ${k + 1} (call ${cmd})\n`;
       });
-      batSetp += `if %num% == ${project.command.length} (goto choose)\n`;
+      batSetp += `if %num%== ${project.command.length + 1} (goto choose)\nif %num%== ${project.command.length + 1} (exit)\ngoto choose\n`;
     });
+    batChoose += `echo ${pjList.length + 1}、退出\n`;
+    batRun += `if %num% == ${pjList.length + 1} (exit)\n`;
     return `${batChoose}${batRun}\n${batSetp}`;
   } else {
     return "";
   }
+}
+
+function pathChange(val, row) {
+  let index = val.indexOf(":");
+  if (index > -1) {
+    let valArr = val.split(":");
+    row.drive = valArr[0] + ":";
+    row.path = valArr[1];
+  }
+  saveCode();
 }
 
 function codeCopy() {
@@ -178,9 +212,10 @@ function codeCopy() {
   document.execCommand("Copy");
   inputDom.style.display = "none";
   inputDom.remove();
-  ElMessage({
-    type: "success",
-    message: "代码复制成功！",
+  ElNotification({
+    title: "代码复制成功！",
+    dangerouslyUseHTMLString: true,
+    message: "<p>项目列表编辑完成之后</p><ol><li>打开记事本</li><li>复制代码</li><li>在记事本粘贴</li><li>保存</li></ol><h3>保存的时候文件后缀名改成 .bat 编码 UTF-8 改成 ASNI</h3>",
   });
 }
 
@@ -190,10 +225,12 @@ function copyCurrent(row, index) {
     command: [...row.command],
   };
   projectList.value.splice(index + 1, 1, newRow);
+  saveCode();
 }
 
 function delCurrent(row, index) {
   projectList.value.splice(index, 1);
+  saveCode();
 }
 
 function addProject() {
@@ -203,6 +240,7 @@ function addProject() {
     path: "",
     command: [],
   });
+  saveCode();
 }
 function getHeight() {
   height.value = document.body.clientHeight - 116;
@@ -239,6 +277,29 @@ onUnmounted(() => {
   .el-page-header {
     display: flex;
     flex-direction: column;
+    .el-page-header__left,
+    .el-page-header__content,
+    .header-alerts {
+      flex: 1;
+    }
+
+    .el-page-header__content {
+      display: flex;
+      .header-alerts {
+        height: 30px;
+        overflow: hidden;
+        margin-left: 10px;
+        .el-alert {
+          padding: 3px 12px;
+          .el-alert__title {
+            vertical-align: middle;
+          }
+          .el-alert__close-btn {
+            top: 10px;
+          }
+        }
+      }
+    }
     .el-page-header__main {
       flex: 1;
       .bat-script-code-container {
@@ -250,9 +311,8 @@ onUnmounted(() => {
 }
 .bat-script-code-container {
   padding: 7px 12px;
-  .bat-script-code-tips {
-    font-size: 12px;
-    color: var(--el-text-color-secondary);
+  .el-alert {
+    margin-bottom: 7px;
   }
   .el-table {
     width: 100%;
@@ -262,11 +322,9 @@ onUnmounted(() => {
   }
 }
 @media screen and (max-width: 720px) {
-  .bat-script-code-container {
-    flex-direction: column;
-    .bat-script-code-left,
-    .bat-script-code-right {
-      flex: auto;
+  .create-bat-code {
+    .header-alerts {
+      display: none;
     }
   }
 }
