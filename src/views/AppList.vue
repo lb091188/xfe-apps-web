@@ -30,6 +30,11 @@ const apps = ref([
     description: "用数字和点展示数与量",
     path: "/app/num-pad",
   },
+  {
+    name: "可视化倒计时钟",
+    description: "用可视化的方式表示时间的流失，助理形成时间观念",
+    path: "/app/count-down",
+  },
 ]);
 function goto(app) {
   router.push(app.path);

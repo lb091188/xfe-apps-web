@@ -1,4 +1,5 @@
 import { fileURLToPath, URL } from "node:url";
+import { VitePWA } from "vite-plugin-pwa";
 
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
@@ -31,6 +32,17 @@ export default defineConfig({
     }),
     Components({
       resolvers: [ElementPlusResolver()],
+    }),
+    VitePWA({
+      registerType: "autoUpdate",
+      manifest: {
+        name: "Noah Liu 的小应用们",
+        short_name: "小应用",
+        theme_color: "#ffffff",
+      },
+      workbox: {
+        cleanupOutdatedCaches: true,
+      },
     }),
   ],
   resolve: {

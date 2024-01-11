@@ -33,6 +33,11 @@ const router = createRouter({
           name: "NumberPad",
           component: () => import("@/views/apps/NumberPad.vue"),
         },
+        {
+          path: "count-down",
+          name: "countDown",
+          component: () => import("@/views/apps/countDown.vue"),
+        },
       ],
     },
   ],
