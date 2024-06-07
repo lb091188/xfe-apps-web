@@ -64,7 +64,7 @@ export interface KMT_STEER_WHEEL {
   downKey: string;
 }
 
-type KeyMapNode = KMT_CLICK | KMT_CLICK_TWICE | KMT_CLICK_MULTI | KMT_DRAG | KMT_STEER_WHEEL;
+export type KeyMapNode = KMT_CLICK | KMT_CLICK_TWICE | KMT_CLICK_MULTI | KMT_DRAG | KMT_STEER_WHEEL;
 
 /** 鼠标移动映射配置 */
 export interface MouseMoveMap {

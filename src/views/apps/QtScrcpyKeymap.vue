@@ -79,7 +79,11 @@
         </div>
       </div>
       <div class="key-type-item">
-        <div class="name save">保存</div>
+        <div
+          class="name save"
+          @click="save">
+          保存
+        </div>
         <div class="tips">
           点击选择
           <br />
@@ -98,6 +102,7 @@
         class="screenshot-map-keys"
         version="1.1"
         baseProfile="full"
+        @mousedown="startMoveKeyNode"
         ondragover="return false"
         @drop="onDrop"
         :width="screenshotSize.width"
@@ -106,41 +111,91 @@
         xmlns="https://www.w3.org/2000/svg"
         xmlns:xlink="https://www.w3.org/1999/xlink"
         xml:space="preserve">
-        <template v-for="node in keyNodes">
+        <template v-for="(node, index) in keyNodes">
           <circle
+            data-keyNode="keyNode"
+            :data-index="index"
+            :data-type="node.data.type"
             v-if="node?.data.type === 'KMT_CLICK'"
             r="20"
             :cx="node?.x"
             :cy="node?.y"
-            fill="rgba(0,0,0,0.3)"></circle>
-          <circle
-            v-if="node?.data.type === 'KMT_CLICK_TWICE'"
-            r="20"
-            :cx="node?.x"
-            :cy="node?.y"
-            fill="rgba(0,0,0,0.3)"
-            stroke="rgba(0,0,0)"
-            stroke-width="2"
-            stroke-dasharray="5,5"></circle>
-          <circle
-            v-if="node?.data.type === 'KMT_CLICK_MULTI'"
-            r="20"
-            :cx="node?.x"
-            :cy="node?.y"
-            fill="rgba(0,0,0,0.3)"
-            stroke="rgba(0,0,0)"
-            stroke-width="2"></circle>
-          <line
-            v-if="node?.data.type === 'KMT_DRAG'"
-            :x1="node?.x1"
-            :y1="node?.y1"
-            :x2="node?.x2"
-            :y2="node?.y2"
-            stroke="rgba(0,0,0)"
-            stroke-width="8"
-            stroke-linecap="round"></line>
+            fill="rgba(0,0,0,0.9)">
+            <text>{{ node.text }}</text>
+          </circle>
+          <g v-if="node?.data.type === 'KMT_CLICK_TWICE'">
+            <circle
+              r="10"
+              :cx="node?.x"
+              :cy="node?.y"
+              fill="rgba(0,0,0,0.45)"></circle>
+            <circle
+              data-keyNode="keyNode"
+              :data-index="index"
+              :data-type="node.data.type"
+              r="20"
+              :cx="node?.x"
+              :cy="node?.y"
+              fill="rgba(0,0,0,0.45)">
+              <text>{{ node.text }}</text>
+            </circle>
+          </g>
+          <g v-if="node?.data.type === 'KMT_CLICK_MULTI'">
+            <circle
+              r="6"
+              :cx="node?.x"
+              :cy="node?.y"
+              fill="rgba(0,0,0,0.3)"></circle>
+            <circle
+              r="12"
+              :cx="node?.x"
+              :cy="node?.y"
+              fill="rgba(0,0,0,0.3)"></circle>
+            <circle
+              data-keyNode="keyNode"
+              :data-index="index"
+              :data-type="node.data.type"
+              r="20"
+              :cx="node?.x"
+              :cy="node?.y"
+              fill="rgba(0,0,0,0.3)">
+              <text>{{ node.text }}</text>
+            </circle>
+          </g>
+          <g v-if="node?.data.type === 'KMT_DRAG'">
+            <line
+              :x1="node?.x1"
+              :y1="node?.y1"
+              :x2="node?.x2"
+              :y2="node?.y2"
+              stroke="rgba(0,0,0,0.6)"
+              stroke-width="4"
+              stroke-linecap="round">
+              <text>{{ node.text }}</text>
+            </line>
+            <circle
+              data-keyNode="keyNode"
+              :data-index="index"
+              :data-type="`${node.data.type}_start`"
+              r="6"
+              :cx="node?.x1"
+              :cy="node?.y1"
+              fill="rgba(0,0,0,0.9)"
+              stroke-width="2"></circle>
+            <circle
+              data-keyNode="keyNode"
+              :data-index="index"
+              :data-type="`${node.data.type}_end`"
+              r="6"
+              :cx="node?.x2"
+              :cy="node?.y2"
+              fill="rgba(0,0,0,0.9)"></circle>
+          </g>
           <g v-if="node?.data.type === 'KMT_STEER_WHEEL'">
             <circle
+              data-keyNode="keyNode"
+              :data-index="index"
+              :data-type="node.data.type"
               r="20"
               :cx="node?.x"
               :cy="node?.y"
@@ -155,7 +210,8 @@
 </template>
 <script setup lang="ts">
 import { ref, computed, reactive, onMounted } from "vue";
-import type { KMT_CLICK, KMT_CLICK_MULTI, KMT_CLICK_TWICE, KMT_DRAG, KMT_STEER_WHEEL, KeyMap } from "@/util/QtScrcpyKeymap/types";
+import { cloneDeep } from "lodash-es";
+import type { KMT_CLICK, KMT_CLICK_MULTI, KMT_CLICK_TWICE, KMT_DRAG, KMT_STEER_WHEEL, KeyMap, KeyMapNode } from "@/util/QtScrcpyKeymap/types";
 
 const screenshot = ref("");
 const screenshotSize = reactive({
@@ -169,6 +225,7 @@ const viewBox = computed(() => {
 });
 const screenshotRef = ref();
 const screenshotContainerRef = ref();
+/** 选择截图回调事件 */
 function fileChange(e) {
   let file = e.target.files[0];
   if (!file) {
@@ -187,6 +244,8 @@ function fileChange(e) {
     console.error("Error reading file", e);
   };
 }
+
+/** 确定截图大小 */
 function screenshotLoad() {
   if (screenshotRef.value) {
     let { x, y, width, height } = screenshotRef.value.getBoundingClientRect();
@@ -206,8 +265,11 @@ const keyMapConfig = reactive<KeyMap>({
   mouseMoveMap: {},
   keyMapNodes: [],
 });
-
-const keyNodes = computed(() => {
+interface KeyNode {
+  data: KeyMapNode;
+  [key: string]: any;
+}
+const keyNodes = computed<KeyNode[]>(() => {
   return keyMapConfig.keyMapNodes.map((item) => {
     switch (item.type) {
       case "KMT_CLICK":
@@ -232,9 +294,6 @@ const keyNodes = computed(() => {
           x: item.centerPos.x,
           y: item.centerPos.y,
         };
-
-      default:
-        break;
     }
   });
 });
@@ -252,14 +311,21 @@ function insetKeyMapData(e: DragEvent, type: string) {
     e.dataTransfer.effectAllowed = "copy";
   }
 }
-
-function onDrop(event) {
-  const { pageX, pageY } = event;
+function getRelativePos(pageX, pageY) {
   const { scrollTop, scrollLeft } = screenshotContainerRef.value;
 
   let x = pageX - screenshotSize.x + scrollLeft;
   let y = pageY - screenshotSize.y + scrollTop;
-  const data = event.dataTransfer.getData("text/plain");
+  return {
+    x,
+    y,
+  };
+}
+
+function onDrop(event: DragEvent) {
+  const { pageX, pageY } = event;
+  let { x, y } = getRelativePos(pageX, pageY);
+  const data = event.dataTransfer?.getData("text/plain");
   console.log(data);
   switch (data) {
     case "KMT_CLICK":
@@ -353,7 +419,110 @@ function onDrop(event) {
   event.preventDefault();
 }
 
-function save() {}
+const movingKenNode = {
+  type: null,
+  index: null,
+};
+
+function startMoveKeyNode(e) {
+  let { keyNode, type, index } = e.target.dataset;
+  if (keyNode === "keyNode") {
+    movingKenNode.index = index;
+    movingKenNode.type = type;
+    document.addEventListener("mousemove", moveKeyNode, true);
+    document.addEventListener("mouseup", endMoveKeyNode, true);
+  }
+}
+function moveKeyNode(e) {
+  let { type, index } = movingKenNode;
+  if (type && index && !isNaN(index)) {
+    let { pageX, pageY } = e;
+    let { x, y } = getRelativePos(pageX, pageY);
+    let data = keyMapConfig.keyMapNodes[index];
+    switch (type) {
+      case "KMT_CLICK":
+      case "KMT_CLICK_TWICE":
+      case "KMT_CLICK_MULTI":
+        data = data as KMT_CLICK | KMT_CLICK_TWICE | KMT_CLICK_MULTI;
+        data.pos.x = x;
+        data.pos.y = y;
+        break;
+      case "KMT_DRAG_start":
+        data = data as KMT_DRAG;
+        data.startPos.x = x;
+        data.startPos.y = y;
+        break;
+      case "KMT_DRAG_end":
+        data = data as KMT_DRAG;
+        data.endPos.x = x;
+        data.endPos.y = y;
+        break;
+      case "KMT_STEER_WHEEL":
+        data = data as KMT_STEER_WHEEL;
+        data.centerPos.x = x;
+        data.centerPos.y = y;
+        break;
+    }
+    keyMapConfig.keyMapNodes[index] = data;
+  }
+}
+function endMoveKeyNode(e) {
+  movingKenNode.type = null;
+  movingKenNode.index = null;
+  document.removeEventListener("mousemove", moveKeyNode, true);
+  document.removeEventListener("mouseup", endMoveKeyNode, true);
+}
+
+function absolutePos2Relative({ x, y }) {
+  x = parseFloat((x / screenshotSize.width).toFixed(2));
+  y = parseFloat((y / screenshotSize.height).toFixed(2));
+  return {
+    x,
+    y,
+  };
+}
+function save() {
+  let config = cloneDeep(keyMapConfig);
+  if (config.mouseMoveMap?.startPos) {
+    config.mouseMoveMap.startPos = absolutePos2Relative(config.mouseMoveMap.startPos);
+  }
+  if (config.mouseMoveMap?.smallEyes) {
+    config.mouseMoveMap.smallEyes.pos = absolutePos2Relative(config.mouseMoveMap.smallEyes.pos);
+  }
+  config.keyMapNodes = config.keyMapNodes.map((keyNode) => {
+    switch (keyNode.type) {
+      case "KMT_CLICK":
+      case "KMT_CLICK_TWICE":
+      case "KMT_CLICK_MULTI":
+        keyNode = keyNode as KMT_CLICK | KMT_CLICK_TWICE | KMT_CLICK_MULTI;
+        keyNode.pos = absolutePos2Relative(keyNode.pos);
+        break;
+      case "KMT_DRAG":
+        keyNode = keyNode as KMT_DRAG;
+        keyNode.startPos = absolutePos2Relative(keyNode.startPos);
+        keyNode.endPos = absolutePos2Relative(keyNode.endPos);
+        break;
+      case "KMT_STEER_WHEEL":
+        keyNode = keyNode as KMT_STEER_WHEEL;
+        keyNode.centerPos = absolutePos2Relative(keyNode.centerPos);
+        break;
+    }
+    return keyNode;
+  });
+
+  const blob = new Blob([JSON.stringify(config, undefined, "  ")], { type: "application/json" });
+
+  const a = document.createElement("a");
+  a.href = window.URL.createObjectURL(blob);
+  a.download = "keymap.json";
+  a.style.display = "none";
+
+  document.body.appendChild(a);
+  a.click();
+
+  window.URL.revokeObjectURL(a.href);
+  document.body.removeChild(a);
+}
 
 onMounted(() => {
   window.addEventListener("keydown", (e: KeyboardEvent) => {
