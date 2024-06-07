@@ -210,7 +210,6 @@
 </template>
 <script setup lang="ts">
 import { ref, computed, reactive, onMounted } from "vue";
-import { cloneDeep } from "lodash-es";
 import type { KMT_CLICK, KMT_CLICK_MULTI, KMT_CLICK_TWICE, KMT_DRAG, KMT_STEER_WHEEL, KeyMap, KeyMapNode } from "@/util/QtScrcpyKeymap/types";
 
 const screenshot = ref("");
