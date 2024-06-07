@@ -35,6 +35,11 @@ const apps = ref([
     description: "用可视化的方式表示时间的流失，助理形成时间观念",
     path: "/app/count-down",
   },
+  {
+    name: "QtScrcpy 按键映射辅助",
+    description: "根据手机截图用可视化的方式来辅助创建 QtScrcpy 的 keymap.json 文件",
+    path: "/app/qt-scrcpy-keymap",
+  },
 ]);
 function goto(app) {
   router.push(app.path);
