@@ -11,7 +11,7 @@ import { resolve } from "path";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: "/xfe-apps-web/",
+  base: "./",
   server: {
     proxy: {
       "/api": {
@@ -29,7 +29,18 @@ export default defineConfig({
       useSource: true,
     }),
     AutoImport({
-      resolvers: [ElementPlusResolver()],
+      imports: [
+        "vue",
+        "pinia",
+        "vue-router",
+        "@vueuse/core",
+        {
+          dayjs: [["default", "dayjs"]],
+          "element-plus": ["ElAlert", "ElMessage", "ElMessageBox", "ElNotification", "ElLoading"],
+        },
+      ],
+      dirs: ["./src/hooks", "./src/store", "./src/util"],
+      dts: "src/auto-imports.d.ts",
     }),
     Components({
       resolvers: [ElementPlusResolver()],

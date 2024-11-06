@@ -36,9 +36,9 @@ const apps = ref([
     path: "/app/count-down",
   },
   {
-    name: "QtScrcpy 按键映射辅助",
-    description: "根据手机截图用可视化的方式来辅助创建 QtScrcpy 的 keymap.json 文件",
-    path: "/app/qt-scrcpy-keymap",
+    name: "听觉集中训练1",
+    description: "随机出一串数字，让回答某个数字的数量",
+    path: "/app/listen-1",
   },
 ]);
 function goto(app) {

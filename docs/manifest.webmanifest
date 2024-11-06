@@ -1,1 +1,1 @@
-{"name":"Noah Liu 的小应用们","short_name":"小应用","start_url":"/xfe-apps-web/","display":"standalone","background_color":"#ffffff","lang":"en","scope":"/xfe-apps-web/","theme_color":"#ffffff"}
+{"name":"Noah Liu 的小应用们","short_name":"小应用","start_url":"./","display":"standalone","background_color":"#ffffff","lang":"en","scope":"./","theme_color":"#ffffff"}

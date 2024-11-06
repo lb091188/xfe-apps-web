@@ -39,9 +39,9 @@ const router = createRouter({
           component: () => import("@/views/apps/countDown.vue"),
         },
         {
-          path: "qt-scrcpy-keymap",
-          name: "QtScrcpyKeymap",
-          component: () => import("@/views/apps/QtScrcpyKeymap.vue"),
+          path: "listen-1",
+          name: "Listen1",
+          component: () => import("@/views/apps/listen1.vue"),
         },
       ],
     },

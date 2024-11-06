@@ -211,6 +211,7 @@
 <script setup lang="ts">
 import { ref, computed, reactive, onMounted } from "vue";
 import type { KMT_CLICK, KMT_CLICK_MULTI, KMT_CLICK_TWICE, KMT_DRAG, KMT_STEER_WHEEL, KeyMap, KeyMapNode } from "@/util/QtScrcpyKeymap/types";
+import { cloneDeep } from "lodash-es";
 
 const screenshot = ref("");
 const screenshotSize = reactive({
@@ -389,14 +390,14 @@ function onDrop(event: DragEvent) {
           x,
           y,
         },
-        leftOffset: 0.2,
-        rightOffset: 0.2,
-        upOffset: 0.2,
-        downOffset: 0.2,
-        leftKey: "",
-        rightKey: "",
-        upKey: "",
-        downKey: "",
+        leftOffset: 0.1,
+        rightOffset: 0.1,
+        upOffset: 0.1,
+        downOffset: 0.1,
+        leftKey: "Key_A",
+        rightKey: "Key_D",
+        upKey: "Key_W",
+        downKey: "Key_S",
       };
       keyMapConfig.keyMapNodes.push(kmtSteerWheel);
       break;
