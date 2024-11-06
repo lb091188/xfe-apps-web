@@ -54,12 +54,19 @@ function randomSetItem(setItem: Set<number>): number {
 }
 
 function generateQuestion() {
-  let number = (parseFloat(Math.random().toFixed(length.value)) * Number(`1e${length.value}`)).toFixed(0);
+  const random = Math.random();
+  const randomNum = random * Number(`1e${length.value}`);
+  let number = randomNum.toFixed(0);
+  const numLength = number.toString().length;
+  if (numLength < length.value) {
+    for (let i = 0; i < length.value - numLength; i++) {
+      number = "0" + `${number}`;
+    }
+  }
+  console.log(number, randomNum);
+
   let numSet = new Set<number>();
-  let numArr = number
-    .toString()
-    .split("")
-    .map((num) => parseInt(num));
+  let numArr = number.split("").map((num) => parseInt(num));
   numArr.forEach((num) => {
     numSet.add(num);
   });
